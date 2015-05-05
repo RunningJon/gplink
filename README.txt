@@ -68,7 +68,7 @@ Notice how in step 1, the External Table is defined with port 8050 and in step 2
 gpfdist was started on port 8050.
 
 ##################################################################################
-#Using Externa Tables
+#Using External Tables
 ##################################################################################
 After you have created the External Table by populating gplink.ext_tables and 
 starting the gpfdist process, you can select from the External Table just like 
