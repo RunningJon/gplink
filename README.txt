@@ -22,16 +22,19 @@ hosting gplink.
 - psql must be configured with PGHOST and PGDATABASE and it is recommended to have
 passwordless access configured with a .pgpass file entry.
 
-1.  Unzip gplink.zip
-2.  source gplink_path.sh
-3.  Edit gplink.properties with correct Greenplum or Hawq connection information
-4.  cd $gplink_home/sql
-5.  ./runme.sh
-6.  Download 3rd party JDBC drivers and place it in the $gplink_home/jar
+1.  Download latest version from history/ directory
+2.  Unzip <version>.zip
+3.  source gplink_path.sh
+4.  Edit gplink.properties with correct Greenplum or Hawq connection information
+5.  cd $gplink_home/sql
+6.  ./runme.sh
+7.  Download 3rd party JDBC drivers and place it in the $gplink_home/jar
 directory.
 
 Demos are available with sample configurations for Oracle and SQL Server in 
 $gplink_home/demo and can be run with the runme.sh file found in that directory.
+
+Database configuration information is available in the README_CONFIG.txt file.
 
 ##################################################################################
 #Creating External Tables
