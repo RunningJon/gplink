@@ -72,7 +72,7 @@ using an Active Directory account.
 Hawq and Greenplum do not allow dirty reads and ignores the setting when set to 
 false.
 
-Note: the JDBC driver is already proviced with gplink in the jar directory.
+Note: the JDBC driver is already provided with gplink in the jar directory.
 
 ##################################################################################
 #PostgreSQL
