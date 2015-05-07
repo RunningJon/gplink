@@ -30,6 +30,13 @@ passwordless access configured with a .pgpass file entry.
 6.  ./runme.sh
 7.  Download 3rd party JDBC drivers and place it in the $gplink_home/jar
 directory.
+8.  Insert External Table configuration information into gplink.ext_tables. Take
+note of the port you picked and the new ID that was created.
+9.  Execute gplink_start <port> to start the gpfdist process on the port you 
+specified in step 8.  (Note: Use one gpfdist process per External Table)
+10. Create External Table using the ID from step 8 and executing the function
+gplink.fn_create_ext_table(ID);
+11. Test the new External Table with a SELECT statement.
 
 Demos are available with sample configurations for Oracle and SQL Server in 
 $gplink_home/demo and can be run with the runme.sh file found in that directory.
