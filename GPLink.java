@@ -2,6 +2,7 @@ import java.sql.*;
 import java.net.*;
 import java.io.*;
 import java.util.*;
+import java.text.SimpleDateFormat;
 
 public class GPLink
 {
@@ -66,6 +67,8 @@ public class GPLink
 			ResultSetMetaData rsmd = rs.getMetaData();
 			int numberOfColumns = rsmd.getColumnCount();
 
+			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
 			String output;
 			String columnValue = "";
 
@@ -79,6 +82,11 @@ public class GPLink
 					columnValue = rs.getString(i);
 					if (columnValue != null)
 					{
+						if (rsmd.getColumnTypeName(i) == "DATE" || rsmd.getColumnTypeName(i) == "TIMESTAMP")
+						{
+							columnValue = df.format(rs.getTimestamp(i));
+						}
+				
 						columnValue = columnValue.replace("\\", "\\\\");
 						columnValue = columnValue.replace("|", "\\|");
 						columnValue = columnValue.replace("\r", " ");
