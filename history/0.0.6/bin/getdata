@@ -1,0 +1,12 @@
+#!/bin/bash
+PWD=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+gplink_class_path=$PWD/../jar/PivotalGuruGPLink.jar
+
+for j in $(ls $PWD/../jar/*.jar | grep -v PivotalGuruGPLink.jar); do
+	gplink_class_path="$gplink_class_path:"$j
+done
+
+config_file=`echo $1 | awk -F '+' '{print $1}'`
+id=`echo $1 | awk -F '+' '{print $2}'`
+
+java -classpath $gplink_class_path -Xms128m -Xmx256m -Djava.security.egd=file:/dev/./urandom GPLink "$config_file" "$id"
