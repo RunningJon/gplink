@@ -1,2 +1,0 @@
-DROP SCHEMA IF EXISTS gplink_demo CASCADE;
-CREATE SCHEMA gplink_demo;

@@ -1,0 +1,70 @@
+#!/bin/bash
+
+set -e
+
+parm1="0"
+parm2="0"
+
+if [[ "$1" == "-s" || "$1" == "-f" ]]; then
+	parm1=1
+fi
+if [[ "$3" == "-s" || "$3" == "-f" ]]; then
+	parm2=1
+fi
+
+if [[ "$parm1" -eq "0" || "$parm2" -eq "0" || "$2" == "" || "$4" == "" ]]; then
+	echo "********************************************************************************"
+	echo "PivotalGuru gplink: gpldata"
+	echo "********************************************************************************"
+	echo ""
+	echo "********************************************************************************"
+	echo "Purpose:"
+	echo "This is used by the External Table to get data."
+	echo "********************************************************************************"
+	echo ""
+	echo "Error: Usage is gpldata -s <source_config> -f <sql>"
+	echo ""
+	echo "Example:"
+	echo "gpldata -s sqlserver.properties -f report.sql"
+	echo ""
+	echo "-s is the properties file with connection information to the SOURCE."
+	echo "Example:"
+	echo "connectionUrl=jdbc:sqlserver://jonnywin;CODEPAGE=65001;responseBuffering=adaptive;selectMethod=cursor;"
+	echo "classForName=com.microsoft.sqlserver.jdbc.SQLServerDriver"
+	echo "readCommitted=true"
+	echo "userName=sa"
+	echo "password=sa"
+	echo "extraProperies="
+	echo ""
+	echo "Each of these keys are REQUIRED in a SOURCE config file."
+	echo ""
+	echo "-f is the SQL FILE which contains the SQL to execute in the remote, SOURCE database."
+	echo ""
+	echo "Example:"
+	echo "select 'jon', 'roberts'"
+	echo "union all"
+	echo "select 'JON', 'ROBERTS'"
+	echo ""
+	exit 1
+fi
+
+if [ "$1" == "-s" ]; then
+	source_config="$2"
+fi
+if [ "$3" == "-s" ]; then
+	source_config="$4"
+fi
+if [ "$1" == "-f" ]; then
+	sql="$2"
+fi
+if [ "$3" == "-f" ]; then
+	sql="$4"
+fi
+
+PWD=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+GPLINK_CLASS_PATH=$PWD/../jar/PivotalGuruGPLink.jar
+for j in $(ls $PWD/../jar/*.jar | grep -v PivotalGuruGPLink.jar); do
+	GPLINK_CLASS_PATH="$GPLINK_CLASS_PATH:"$j
+done
+
+java -classpath $GPLINK_CLASS_PATH -Xms128m -Xmx256m -Djava.security.egd=file:/dev/./urandom ExternalData "$source_config" "$sql"

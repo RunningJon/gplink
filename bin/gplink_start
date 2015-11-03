@@ -1,7 +1,0 @@
-#!/bin/bash
-PWD=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
-gplink_port=$1
-gplink_log="$gplink_log"_"$gplink_port".log
-
-gpfdist -d $gplink_home -p $gplink_port -c $gplink_yml >> $gplink_log 2>&1 < $gplink_log &
-echo "starting $gplink_port"
