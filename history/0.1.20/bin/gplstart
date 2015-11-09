@@ -1,0 +1,65 @@
+#!/bin/bash
+
+set -e
+
+if [ "$GPLINK_DEBUG" != "" ]; then
+	debug="true"
+else
+	debug="false"
+fi
+
+parm1="0"
+
+if [ "$1" == "-t" ]; then
+	parm1=1
+fi
+if [ "$parm1" -eq "0" ]; then
+	echo "********************************************************************************"
+	echo "PivotalGuru gplink: gplstart"
+	echo "********************************************************************************"
+	echo ""
+	echo "********************************************************************************"
+	echo "Purpose:"
+	echo "Start all gpfdist processes needed for gplink External Tables"
+	echo "********************************************************************************"
+	echo ""
+	echo "Error: Usage is gplstart -t <target_config>"
+	echo ""
+	echo "Example:"
+	echo "gplstart -t gplink.properties"
+	echo ""
+	echo "-t is the properties file with connection information to the TARGET which is Greenplum or HAWQ."
+	echo ""
+	echo "Example:"
+	echo "connectionUrl=jdbc:postgresql://bigmac:5432/gpdb"
+	echo "classForName=org.postgresql.Driver"
+	echo "readCommitted=true"
+	echo "userName=gpadmin"
+	echo "password=changeme"
+	echo "gplinkHome=/Users/gpadmin/src/gplink"
+	echo "gplinkLog=/Users/gpadmin/src/gplink/log/gplink"
+	echo "gplinkYml=/Users/gpadmin/src/gplink/yml/gplink.yml"
+	echo "gplinkPortLower=24000"
+	echo "gplinkPortUpper=25000"
+	echo ""
+	echo "Each of these keys are REQUIRED in a TARGET config file."
+	echo ""
+	exit 1
+fi
+
+#target_config
+if [ "$1" == "-t" ]; then
+	target_config="$2"
+fi
+
+PWD=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+GPLINK_CLASS_PATH=$PWD/../jar/PivotalGuruGPLink.jar
+for j in $(ls $PWD/../jar/*.jar | grep -v PivotalGuruGPLink.jar); do
+	GPLINK_CLASS_PATH="$GPLINK_CLASS_PATH:"$j
+done
+
+if [ "$debug" == "true" ]; then
+	echo "java -classpath $GPLINK_CLASS_PATH -Xms128m -Xmx256m -Djava.security.egd=file:/dev/./urandom GPLink \"$target_config\" \"$debug\""
+fi
+
+java -classpath $GPLINK_CLASS_PATH -Xms128m -Xmx256m -Djava.security.egd=file:/dev/./urandom GPLink "$target_config" "$debug"
