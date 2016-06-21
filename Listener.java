@@ -49,14 +49,28 @@ public class Listener
 				parts = sessions[i].split(",", -1);
 				if (!parts[0].equals(""))
 				{
-					pid = Integer.parseInt(parts[0]);
+					try
+					{
+						pid = Integer.parseInt(parts[0]);
+					}
+					catch(NumberFormatException nfe)
+					{
+						pid = 0;
+					}
 				}
 				if (GPLink.debug)
 					System.out.println("pid: " + pid);
 
 				if (!parts[1].equals(""))
 				{
-					sessionPort = Integer.parseInt(parts[1]);
+					try
+					{
+						sessionPort = Integer.parseInt(parts[1]);
+					}
+					catch(NumberFormatException nfe)
+					{
+						sessionPort = 0;
+					}
 				}
 				if (GPLink.debug)
 					System.out.println("sessionPort: " + sessionPort);
