@@ -46,6 +46,9 @@ public class Listener
 
 			for (int i = 0; i < sessions.length-1; i++)
 			{
+				pid = 0;
+				sessionPort = 0;
+
 				parts = sessions[i].split(",", -1);
 				if (!parts[0].equals(""))
 				{

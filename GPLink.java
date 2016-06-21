@@ -6,7 +6,7 @@ import java.text.SimpleDateFormat;
 
 public class GPLink
 {
-	public static Boolean debug = false;
+	public static Boolean debug = true;
 	public static String hostName = "";
         public static String gplinkHome = "";
         public static String gplinkLog = "";
