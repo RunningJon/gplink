@@ -1,0 +1,7 @@
+---
+VERSION: 1.0.0.1
+TRANSFORMATIONS:
+  gplink:
+     TYPE: input
+     CONTENT: data
+     COMMAND: /bin/bash bin/ext_gpldata %filename%
