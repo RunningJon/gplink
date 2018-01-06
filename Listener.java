@@ -5,6 +5,43 @@ import java.util.*;
 
 public class Listener
 {
+	private static String getSQLForVersion() throws SQLException
+	{
+		try
+		{
+			String strSQL = "SELECT CASE WHEN POSITION ('Greenplum Database 4.3' IN version) > 0 THEN 'gpdb_4_3'\n";
+			strSQL += "WHEN POSITION ('Greenplum Database 5' IN version) > 0 THEN 'gpdb_5'\n";
+			strSQL += "ELSE 'OTHER' END\n";
+			strSQL += "FROM version()";
+			return strSQL;
+		}
+		catch (Exception ex)
+		{
+			throw new SQLException(ex.getMessage());
+		}
+	}
+	private static String getVersion(Connection conn) throws SQLException
+	{
+		try
+		{
+			String version = "gpdb_4_3";
+			String strSQL = getSQLForVersion();
+			Statement stmt = conn.createStatement();
+			ResultSet rs = stmt.executeQuery(strSQL);
+			ResultSetMetaData rsmd = rs.getMetaData();
+
+			while (rs.next())
+			{
+				version = rs.getString(1);
+			}
+			return version;
+
+		}	
+		catch (Exception ex)
+		{
+			throw new SQLException(ex.getMessage());
+		}
+	}
 	public static Integer getPort(Connection conn) throws SQLException
 	{
 		try
@@ -29,7 +66,6 @@ public class Listener
 			throw new SQLException(ex.getMessage());
 		}
 	}
-
 	public static void stopOrphanedPorts(Connection conn) throws SQLException
 	{
 		try
@@ -90,20 +126,21 @@ public class Listener
 			throw new SQLException(ex.getMessage());
 		}
 	}
-
 	public static void startMissingPorts(Connection conn) throws SQLException
 	{
 		try
 		{
 			Integer portCheck = 0;
-			String strSQL = getSQLForPorts(portCheck);
+			String version = getVersion(conn);
+			if (GPLink.debug)
+				System.out.println("version:" + version);
+			String strSQL = getSQLForPorts(version, portCheck);
 			if (GPLink.debug)
 				System.out.println("strSQL: " + strSQL);
 
 			Statement stmt = conn.createStatement();
 			ResultSet rs = stmt.executeQuery(strSQL);
 			ResultSetMetaData rsmd = rs.getMetaData();
-			int numberOfColumns = rsmd.getColumnCount();
 
 			while (rs.next())
 			{
@@ -128,30 +165,50 @@ public class Listener
 			throw new SQLException(exceptionMessage);
 		}
 	}
-
-	private static String getSQLForPorts(Integer myPort) throws SQLException
+	private static String getSQLForPorts(String version, Integer myPort) throws SQLException
 	{
 		try
 		{
 			if (GPLink.debug)
 				System.out.println("MyPort: " + myPort);
-			String strSQL = "select (split_part(split_part(e.location[1], '/', 3), ':', 2))::int as port\n";
-			strSQL += "from pg_class c\n";
-			strSQL += "join pg_namespace n on c.relnamespace = n.oid\n";
-			strSQL += "join pg_exttable e on c.oid = e.reloid\n";
-			strSQL += "where e.location is not null\n";
-			strSQL += "and writable is false\n";
-			strSQL += "and lower(location[1]) like 'gpfdist%'\n";
-			strSQL += "and split_part(split_part(e.location[1], '/', 3), ':', 1) = '" + GPLink.hostName + "'\n";
-			strSQL += "and (split_part(split_part(e.location[1], '/', 3), ':', 2))::int >= " + GPLink.gplinkPortLower + "\n";
-			strSQL += "and (split_part(split_part(e.location[1], '/', 3), ':', 2))::int <= " + GPLink.gplinkPortUpper + "\n";
-
-			if (myPort > 0)
+			String strSQL = "";
+			if (version.equals("gpdb_4_3"))
 			{
-				strSQL += "and (split_part(split_part(e.location[1], '/', 3), ':', 2))::int = " + myPort + "\n";
-			}
-			strSQL += "order by 1";
+				strSQL = "select (split_part(split_part(e.location[1], '/', 3), ':', 2))::int as port\n";
+				strSQL += "from pg_class c\n";
+				strSQL += "join pg_namespace n on c.relnamespace = n.oid\n";
+				strSQL += "join pg_exttable e on c.oid = e.reloid\n";
+				strSQL += "where e.location is not null\n";
+				strSQL += "and writable is false\n";
+				strSQL += "and lower(location[1]) like 'gpfdist%'\n";
+				strSQL += "and split_part(split_part(e.location[1], '/', 3), ':', 1) = '" + GPLink.hostName + "'\n";
+				strSQL += "and (split_part(split_part(e.location[1], '/', 3), ':', 2))::int >= " + GPLink.gplinkPortLower + "\n";
+				strSQL += "and (split_part(split_part(e.location[1], '/', 3), ':', 2))::int <= " + GPLink.gplinkPortUpper + "\n";
 
+				if (myPort > 0)
+				{
+					strSQL += "and (split_part(split_part(e.location[1], '/', 3), ':', 2))::int = " + myPort + "\n";
+				}
+				strSQL += "order by 1";
+			} else if (version.equals("gpdb_5"))
+			{
+				strSQL = "select (split_part(split_part(e.urilocation[1], '/', 3), ':', 2))::int as port\n";
+				strSQL += "from pg_class c\n";
+				strSQL += "join pg_namespace n on c.relnamespace = n.oid\n";
+				strSQL += "join pg_exttable e on c.oid = e.reloid\n";
+				strSQL += "where e.urilocation is not null\n";
+				strSQL += "and writable is false\n";
+				strSQL += "and lower(urilocation[1]) like 'gpfdist%'\n";
+				strSQL += "and split_part(split_part(e.urilocation[1], '/', 3), ':', 1) = '" + GPLink.hostName + "'\n";
+				strSQL += "and (split_part(split_part(e.urilocation[1], '/', 3), ':', 2))::int >= " + GPLink.gplinkPortLower + "\n";
+				strSQL += "and (split_part(split_part(e.urilocation[1], '/', 3), ':', 2))::int <= " + GPLink.gplinkPortUpper + "\n";
+
+				if (myPort > 0)
+				{
+					strSQL += "and (split_part(split_part(e.urilocation[1], '/', 3), ':', 2))::int = " + myPort + "\n";
+				}
+				strSQL += "order by 1";
+			}
 			return strSQL;
 		}
 		catch (Exception ex)
@@ -159,7 +216,6 @@ public class Listener
 			throw new SQLException(ex.getMessage());
 		}
 	}
-
 	private static void startPort(Integer myPort) throws SQLException
 	{
 		try
@@ -175,7 +231,6 @@ public class Listener
 			throw new SQLException(ex.getMessage());
 		}
 	}
-
 	private static boolean checkPort(Integer myPort) throws SQLException
 	{
 		try
@@ -200,14 +255,14 @@ public class Listener
 			throw new SQLException(ex.getMessage());
 		}
 	}
-
 	private static boolean checkPort(Connection conn, Integer myPort) throws SQLException
 	{
 		try
 		{
 			boolean result = false;
 
-			String strSQL = getSQLForPorts(myPort);
+			String version = getVersion(conn);
+			String strSQL = getSQLForPorts(version, myPort);
 			if (GPLink.debug)
 				System.out.println("strSQL: " + strSQL);
 
@@ -228,7 +283,6 @@ public class Listener
 			throw new SQLException(ex.getMessage());
 		}
 	}
-
 	private static void killPid(Integer pid) throws SQLException
 	{
 		try
@@ -244,7 +298,6 @@ public class Listener
 			throw new SQLException(ex.getMessage());
 		}
 	}
-
 	private static String executeShell(String strCommand) throws SQLException
 	{
 		try

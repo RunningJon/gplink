@@ -28,7 +28,7 @@ if [ "$parm1" -eq "0" ]; then
 	echo "Example:"
 	echo "gplstart -t gplink.properties"
 	echo ""
-	echo "-t is the properties file with connection information to the TARGET which is Greenplum or HAWQ."
+	echo "-t is the properties file with connection information to the TARGET which is Greenplum."
 	echo ""
 	echo "Example:"
 	echo "connectionUrl=jdbc:postgresql://bigmac:5432/gpdb"

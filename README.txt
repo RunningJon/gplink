@@ -133,3 +133,8 @@ gplink_path.sh file, and then try again.
 
 Testing has been done with a cluster that isn't secure.  Refer to Hive JDBC 
 documentation on how to configure your JDBC connection with a secure login.
+
+6.  SAP Hana
+No special configuration is needed.  
+classForName=com.sap.db.jdbc.Driver
+readCommitted=true
