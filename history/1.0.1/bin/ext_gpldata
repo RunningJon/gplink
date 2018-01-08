@@ -1,0 +1,9 @@
+#!/bin/bash
+# This script is referenced in the YML file and is used to parse the URL provided and call the gpldata script properly.
+
+PWD=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+source_config=`echo $1 | awk -F '+' '{print $1}'`
+sql=`echo $1 | awk -F '+' '{print $2}'`
+
+$PWD/gpldata -s "$source_config" -f "$sql" 
