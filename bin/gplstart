@@ -36,6 +36,7 @@ if [ "$parm1" -eq "0" ]; then
 	echo "readCommitted=true"
 	echo "userName=gpadmin"
 	echo "password=changeme"
+	echo "gplinkHostName=gpdbsne"
 	echo "gplinkHome=/Users/gpadmin/src/gplink"
 	echo "gplinkLog=/Users/gpadmin/src/gplink/log/gplink"
 	echo "gplinkYml=/Users/gpadmin/src/gplink/yml/gplink.yml"
