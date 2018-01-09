@@ -102,7 +102,7 @@ public class GPLink
 
 			Validation.checkProperty("gplinkHostName", gplinkHostName);
 			Validation.checkProperty("gplinkHome", gplinkHome);
-			Validation.checkProperty("gplinklog", gplinkLog);
+			Validation.checkProperty("gplinkLog", gplinkLog);
 			Validation.checkProperty("gplinkYml", gplinkYml);
 			Validation.checkProperty("gplinkPortLower", gplinkPortLower);
 			Validation.checkProperty("gplinkPortUpper", gplinkPortUpper);
