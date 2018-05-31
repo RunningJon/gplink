@@ -1,0 +1,97 @@
+#!/bin/bash
+
+set -e
+
+if [ "$GPLINK_DEBUG" != "" ]; then
+	debug="true"
+else
+	debug="false"
+fi
+
+parm1="0"
+parm2="0"
+parm3="0"
+parm4="0"
+
+if [[ "$1" == "-t" || "$1" == "-n" ]]; then
+	parm1=1
+fi
+if [[ "$3" == "-t" || "$3" == "-n" ]]; then
+	parm2=1
+fi
+if [[ "$parm1" -eq "0" || "$parm2" -eq "0" || "$2" == "" || "$4" == "" ]]; then
+	echo "********************************************************************************"
+	echo "PivotalGuru gplink: gpldrop"
+	echo "********************************************************************************"
+	echo ""
+	echo "********************************************************************************"
+	echo "Purpose:"
+	echo "Drop External Table in Greenplum created by gplink."
+	echo "********************************************************************************"
+	echo ""
+	echo "Error: Usage is gpldrop -t <target_config> -n <table_name>"
+	echo ""
+	echo "Example:"
+	echo "gpldrop -t gplink.properties -n public.test"
+	echo ""
+	echo "-t is the properties file with connection information to the TARGET which is Greenplum."
+	echo ""
+	echo "Example:"
+	echo "connectionUrl=jdbc:postgresql://bigmac:5432/gpdb"
+	echo "classForName=org.postgresql.Driver"
+	echo "readCommitted=true"
+	echo "userName=gpadmin"
+	echo "password=changeme"
+	echo "gplinkHome=/Users/gpadmin/src/gplink"
+	echo "gplinkLog=/Users/gpadmin/src/gplink/log/gplink"
+	echo "gplinkYml=/Users/gpadmin/src/gplink/yml/gplink.yml"
+	echo "gplinkPortLower=24000"
+	echo "gplinkPortUpper=25000"
+	echo ""
+	echo "Each of these keys are REQUIRED in a TARGET config file."
+	echo ""
+	echo "-n is the name of the External Table"
+	echo ""
+	echo "Example:"
+	echo "public.test"
+	echo ""
+	exit 1
+fi
+
+#target_config
+if [ "$1" == "-t" ]; then
+	target_config="$2"
+fi
+if [ "$3" == "-t" ]; then
+	target_config="$4"
+fi
+
+#table_name
+if [ "$1" == "-n" ]; then
+	table_name="$2"
+fi
+if [ "$3" == "-n" ]; then
+	table_name="$4"
+fi
+
+PWD=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+source $PWD/../gplink_path.sh
+
+if [ ! -f "$target_config" ]; then
+	echo "Error: target_config file $target_config not found!"
+	exit 1
+else
+	target_config_basename=$(basename $target_config)
+	target_config_filename=$PWD/../connections/$target_config_basename
+	if ! [ "$target_config" -ef "$target_config_filename" ]; then
+		cp $target_config $PWD/../connections/
+	fi
+fi
+
+target_config_param="$PWD/../connections/$target_config_basename"
+
+if [ "$debug" == "true" ]; then
+	echo "java -classpath $GPLINK_CLASS_PATH -Xms128m -Xmx256m -Djava.security.egd=file:/dev/./urandom GPLink \"$target_config_param\" \"$table_name\" \"$debug\""
+fi
+
+java -classpath $GPLINK_CLASS_PATH -Xms128m -Xmx256m -Djava.security.egd=file:/dev/./urandom GPLink "$target_config_param" "$table_name" "$debug"
